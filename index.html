@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOXL - 3D Printed Lamps & Custom Photo Frames</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            voxl: {
+              bg: '#FAF8F5',
+              surface: '#FFFFFF',
+              card: '#F4EFEA',
+              border: '#E8E1D9',
+              dark: '#2D2B2A',
+              muted: '#7A7571',
+              accent: '#C8B8AB',
+              accentHover: '#B5A391',
+              sage: '#E2E8E0',
+              sageText: '#3B5238',
+              rose: '#F5E6E4',
+              roseText: '#7A433D'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FAF8F5;
+      color: #2D2B2A;
+    }
+    h1, h2, h3, h4, .brand-font {
+      font-family: 'Outfit', sans-serif;
+    }
+    .drawer-overlay { transition: opacity 0.3s ease-in-out; }
+    .drawer-content { transition: transform 0.3s ease-in-out; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-voxl-bg text-voxl-dark antialiased">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-voxl-surface/90 backdrop-blur-md border-b border-voxl-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Brand Logo -->
+        <div class="flex items-center cursor-pointer" onclick="resetFilters()">
+          <img 
+            src="voxl-logo.png" 
+            alt="VOXL Logo" 
+            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'brand-font font-bold text-2xl tracking-widest text-voxl-dark flex items-center\'>VO<span class=\'inline-block relative text-[#C8B8AB] font-extrabold\'>X</span>L</div>';"
+            class="h-10 w-auto object-contain"
+          />
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-voxl-dark/80">
+          <button onclick="setCategory('All')" class="hover:text-voxl-dark transition-colors">Shop All</button>
+          <button onclick="setCategory('Photobooth Strip')" class="hover:text-voxl-dark transition-colors">Photobooth Strip (₱198)</button>
+          <button onclick="setCategory('Instax Mini')" class="hover:text-voxl-dark transition-colors">Instax Mini (₱169)</button>
+          <button onclick="setCategory('Lamps')" class="hover:text-voxl-dark transition-colors">Mochi Lamp</button>
+        </nav>
+
+        <!-- Search & Cart -->
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <div class="relative hidden sm:block w-48 lg:w-64">
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search products..." 
+              class="w-full pl-9 pr-4 py-2 bg-voxl-surface text-voxl-dark placeholder-voxl-muted rounded-full text-xs border border-voxl-border focus:border-voxl-dark focus:outline-none transition-all"
+              oninput="handleSearch()"
+            />
+            <div class="absolute left-3 top-2.5 text-voxl-muted">
+              <i class="fa-solid fa-magnifying-glass text-xs"></i>
+            </div>
+          </div>
+
+          <button onclick="toggleCart(true)" class="relative p-2.5 text-voxl-dark hover:bg-voxl-card rounded-full transition-all">
+            <i class="fa-solid fa-bag-shopping text-xl"></i>
+            <span id="cartBadge" class="absolute -top-1 -right-1 bg-voxl-dark text-voxl-bg text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center scale-0 transition-transform shadow-sm">
+              0
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== HERO BANNER ==================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    
+    <div class="mb-10 rounded-3xl bg-gradient-to-r from-[#EFE8E0] via-[#F4EFEA] to-[#FAF8F5] border border-voxl-border p-8 sm:p-10 relative overflow-hidden shadow-xs">
+      <div class="relative z-10 max-w-xl space-y-3">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 bg-voxl-surface/90 rounded-full border border-voxl-border text-xs font-semibold text-voxl-dark">
+          <i class="fa-solid fa-palette text-voxl-accent"></i>
+          <span>Interactive 3D Color Customizer</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-voxl-dark leading-tight">
+          3D Printed Studio for Frames & Custom Ambient Lighting
+        </h1>
+        <p class="text-voxl-muted text-xs sm:text-sm leading-relaxed">
+          Select your frame shapes, pick from 10 signature filament colors, or build your custom Mochi Stack Lamp with real-time live preview!
+        </p>
+        <div class="pt-2 flex flex-wrap gap-3">
+          <button onclick="setCategory('Photobooth Strip')" class="px-5 py-2.5 bg-voxl-dark text-voxl-bg font-semibold rounded-2xl text-xs hover:bg-black transition-colors shadow-xs">
+            Photobooth Frames (₱198)
+          </button>
+          <button onclick="setCategory('Instax Mini')" class="px-5 py-2.5 bg-voxl-surface text-voxl-dark font-semibold rounded-2xl text-xs border border-voxl-border hover:bg-voxl-card transition-colors">
+            Instax Frames (₱169)
+          </button>
+          <button onclick="setCategory('Lamps')" class="px-5 py-2.5 bg-voxl-accent text-voxl-dark font-semibold rounded-2xl text-xs hover:bg-voxl-accentHover transition-colors">
+            Configure Mochi Lamp
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div id="catalog" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-voxl-border">
+      <div class="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0" id="categoryContainer">
+        <!-- Dynamic Category Pills -->
+      </div>
+
+      <div class="flex items-center space-x-3 self-end sm:self-auto">
+        <span class="text-xs font-semibold text-voxl-muted uppercase">Sort:</span>
+        <select id="sortFilter" onchange="applyFilters()" class="bg-voxl-surface border border-voxl-border text-voxl-dark text-xs rounded-xl px-3 py-2 focus:outline-none">
+          <option value="featured">Featured</option>
+          <option value="low-high">Price: Low to High</option>
+          <option value="high-low">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Injected via JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16">
+      <div class="w-16 h-16 mx-auto mb-4 bg-voxl-card rounded-2xl flex items-center justify-center text-voxl-muted text-2xl">
+        <i class="fa-solid fa-cube"></i>
+      </div>
+      <h3 class="text-lg font-bold text-voxl-dark">No products found</h3>
+      <button onclick="resetFilters()" class="mt-4 px-5 py-2.5 bg-voxl-dark text-voxl-bg rounded-xl text-xs font-semibold">
+        View All Items
+      </button>
+    </div>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-voxl-card border-t border-voxl-border mt-20 py-10 text-xs text-voxl-muted">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center space-x-3">
+        <div class="brand-font font-bold text-xl tracking-widest text-voxl-dark">
+          VO<span class="text-[#C8B8AB]">X</span>L
+        </div>
+        <span class="text-voxl-border">|</span>
+        <span>Custom 3D Printing Lab</span>
+      </div>
+      <p>&copy; 2026 VOXL Studio. Crafted using eco-friendly biodegradable PLA & PETG filaments.</p>
+      <div class="flex items-center space-x-3">
+        <span class="bg-voxl-surface px-2 py-1 rounded border border-voxl-border text-xs font-bold text-blue-600">GCash</span>
+        <span class="bg-voxl-surface px-2 py-1 rounded border border-voxl-border text-xs font-bold text-emerald-600">Maya</span>
+        <i class="fa-solid fa-credit-card text-voxl-dark"></i>
+        <i class="fa-solid fa-truck-fast text-voxl-dark"></i>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== CART DRAWER ==================== -->
+  <div id="cartModal" class="fixed inset-0 z-50 pointer-events-none">
+    <div id="cartOverlay" onclick="toggleCart(false)" class="drawer-overlay absolute inset-0 bg-voxl-dark/30 opacity-0 pointer-events-none backdrop-blur-xs"></div>
+    
+    <div id="cartContent" class="drawer-content absolute right-0 top-0 bottom-0 w-full max-w-md bg-voxl-surface shadow-2xl translate-x-full pointer-events-auto flex flex-col">
+      <div class="p-6 border-b border-voxl-border flex items-center justify-between bg-voxl-bg">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-bag-shopping text-voxl-dark text-lg"></i>
+          <h2 class="text-lg font-bold text-voxl-dark">Your Shopping Bag</h2>
+        </div>
+        <button onclick="toggleCart(false)" class="p-2 text-voxl-muted hover:text-voxl-dark">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-6 space-y-4">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="p-6 border-t border-voxl-border bg-voxl-bg space-y-4">
+        <div class="space-y-2 text-xs sm:text-sm text-voxl-muted">
+          <div class="flex justify-between">
+            <span>Subtotal</span>
+            <span id="cartSubtotal" class="font-semibold text-voxl-dark">₱0.00</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Eco Courier Delivery</span>
+            <span id="cartShipping" class="font-semibold text-voxl-dark">₱0.00</span>
+          </div>
+          <div class="flex justify-between text-base font-bold text-voxl-dark pt-2 border-t border-voxl-border">
+            <span>Total</span>
+            <span id="cartTotal" class="text-voxl-dark">₱0.00</span>
+          </div>
+        </div>
+
+        <button 
+          id="checkoutBtn" 
+          onclick="openCheckoutModal()" 
+          class="w-full py-3.5 bg-voxl-dark text-voxl-bg font-bold rounded-2xl hover:bg-black transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm"
+        >
+          <span>Proceed to Checkout</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CUSTOMIZER / QUICK VIEW MODAL ==================== -->
+  <div id="customizerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-voxl-dark/40 backdrop-blur-xs overflow-y-auto">
+    <div class="bg-voxl-surface rounded-3xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 relative border border-voxl-border my-auto">
+      <button onclick="closeCustomizerModal()" class="absolute top-5 right-5 p-2 text-voxl-muted hover:text-voxl-dark z-10">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div id="customizerModalContent">
+        <!-- Injected dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CHECKOUT MODAL ==================== -->
+  <div id="checkoutModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-voxl-dark/40 backdrop-blur-xs overflow-y-auto">
+    <div class="bg-voxl-surface rounded-3xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto my-8 border border-voxl-border">
+      <div class="p-6 border-b border-voxl-border flex items-center justify-between sticky top-0 bg-voxl-surface z-10">
+        <h2 class="text-xl font-bold text-voxl-dark flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-voxl-dark"></i> Complete Order
+        </h2>
+        <button onclick="closeCheckoutModal()" class="p-2 text-voxl-muted hover:text-voxl-dark">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="checkoutForm" onsubmit="handlePaymentSubmit(event)" class="p-6 space-y-6">
+        <div class="bg-voxl-card p-4 rounded-2xl border border-voxl-border">
+          <h3 class="text-xs font-bold text-voxl-muted uppercase tracking-wider mb-1">Total Payable Amount</h3>
+          <div class="flex justify-between items-center font-bold text-voxl-dark">
+            <span id="checkoutItemCount" class="text-xs text-voxl-muted font-normal">0 Items</span>
+            <span id="checkoutGrandTotal" class="text-xl text-voxl-dark">₱0.00</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-bold text-voxl-dark mb-3">Delivery Information</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <input type="text" id="custName" required placeholder="Full Name" class="w-full px-4 py-3 bg-voxl-bg border border-voxl-border rounded-xl focus:outline-none">
+            <input type="tel" id="custMobile" required placeholder="Mobile Number" class="w-full px-4 py-3 bg-voxl-bg border border-voxl-border rounded-xl focus:outline-none">
+            <input type="email" id="custEmail" required placeholder="Email Address" class="sm:col-span-2 w-full px-4 py-3 bg-voxl-bg border border-voxl-border rounded-xl focus:outline-none">
+            <input type="text" id="custAddress" required placeholder="Complete Delivery Address" class="sm:col-span-2 w-full px-4 py-3 bg-voxl-bg border border-voxl-border rounded-xl focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-bold text-voxl-dark mb-3">Payment Option</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <label class="cursor-pointer">
+              <input type="radio" name="paymentMethod" value="gcash" checked onchange="togglePaymentFields('gcash')" class="peer sr-only">
+              <div class="p-2.5 border border-voxl-border rounded-2xl text-center peer-checked:border-voxl-dark peer-checked:bg-voxl-card">
+                <span class="text-xs font-bold block text-blue-600">GCash</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="paymentMethod" value="maya" onchange="togglePaymentFields('maya')" class="peer sr-only">
+              <div class="p-2.5 border border-voxl-border rounded-2xl text-center peer-checked:border-voxl-dark peer-checked:bg-voxl-card">
+                <span class="text-xs font-bold block text-emerald-600">Maya</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="paymentMethod" value="maribank" onchange="togglePaymentFields('maribank')" class="peer sr-only">
+              <div class="p-2.5 border border-voxl-border rounded-2xl text-center peer-checked:border-voxl-dark peer-checked:bg-voxl-card">
+                <span class="text-xs font-bold block text-orange-600">MariBank</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="paymentMethod" value="bpi" onchange="togglePaymentFields('bpi')" class="peer sr-only">
+              <div class="p-2.5 border border-voxl-border rounded-2xl text-center peer-checked:border-voxl-dark peer-checked:bg-voxl-card">
+                <span class="text-xs font-bold block text-red-700">BPI</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="paymentMethod" value="bdo" onchange="togglePaymentFields('bdo')" class="peer sr-only">
+              <div class="p-2.5 border border-voxl-border rounded-2xl text-center peer-checked:border-voxl-dark peer-checked:bg-voxl-card">
+                <span class="text-xs font-bold block text-blue-800">BDO</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- GCash -->
+        <div id="gcashFields" class="p-4 bg-voxl-bg rounded-2xl border border-voxl-border text-center space-y-3">
+          <p class="text-xs font-bold text-voxl-dark uppercase tracking-wider">Scan to Pay via GCash</p>
+          <div class="w-48 h-[24rem] mx-auto bg-voxl-surface p-2 rounded-2xl border border-voxl-border shadow-xs flex items-center justify-center overflow-hidden">
+            <img 
+              src="paymentqr/gcash-qr.png" 
+              alt="GCash QR Code" 
+              onerror="this.onerror=null; this.src='https://placehold.co/200x400/FAF8F5/2D2B2A?text=GCash+2x4+QR';" 
+              class="w-full h-full object-contain rounded-xl"
+            />
+          </div>
+          <input type="tel" id="gcashNo" placeholder="Enter Your GCash Mobile No. (For Verification)" class="w-full px-4 py-2.5 bg-voxl-surface border border-voxl-border rounded-xl text-xs text-center focus:outline-none">
+        </div>
+
+        <!-- Maya -->
+        <div id="mayaFields" class="hidden p-4 bg-voxl-bg rounded-2xl border border-voxl-border text-center space-y-3">
+          <p class="text-xs font-bold text-voxl-dark uppercase tracking-wider">Scan to Pay via Maya</p>
+          <div class="w-48 h-[24rem] mx-auto bg-voxl-surface p-2 rounded-2xl border border-voxl-border shadow-xs flex items-center justify-center overflow-hidden">
+            <img 
+              src="paymentqr/maya-qr.png" 
+              alt="Maya QR Code" 
+              onerror="this.onerror=null; this.src='https://placehold.co/200x400/FAF8F5/2D2B2A?text=Maya+2x4+QR';" 
+              class="w-full h-full object-contain rounded-xl"
+            />
+          </div>
+          <input type="tel" id="mayaNo" placeholder="Enter Your Maya Mobile No. (For Verification)" class="w-full px-4 py-2.5 bg-voxl-surface border border-voxl-border rounded-xl text-xs text-center focus:outline-none">
+        </div>
+
+        <!-- MariBank -->
+        <div id="maribankFields" class="hidden p-4 bg-voxl-bg rounded-2xl border border-voxl-border text-center space-y-3">
+          <p class="text-xs font-bold text-voxl-dark uppercase tracking-wider">Scan to Pay via MariBank</p>
+          <div class="w-48 h-[24rem] mx-auto bg-voxl-surface p-2 rounded-2xl border border-voxl-border shadow-xs flex items-center justify-center overflow-hidden">
+            <img 
+              src="paymentqr/maribank-qr.png" 
+              alt="MariBank QR Code" 
+              onerror="this.onerror=null; this.src='https://placehold.co/200x400/FAF8F5/2D2B2A?text=MariBank+2x4+QR';" 
+              class="w-full h-full object-contain rounded-xl"
+            />
+          </div>
+          <input type="tel" id="maribankNo" placeholder="Enter Reference / Account No. (For Verification)" class="w-full px-4 py-2.5 bg-voxl-surface border border-voxl-border rounded-xl text-xs text-center focus:outline-none">
+        </div>
+
+        <!-- BPI -->
+        <div id="bpiFields" class="hidden p-4 bg-voxl-bg rounded-2xl border border-voxl-border text-center space-y-3">
+          <p class="text-xs font-bold text-voxl-dark uppercase tracking-wider">Scan to Pay via BPI</p>
+          <div class="w-48 h-[24rem] mx-auto bg-voxl-surface p-2 rounded-2xl border border-voxl-border shadow-xs flex items-center justify-center overflow-hidden">
+            <img 
+              src="paymentqr/bpi-qr.png" 
+              alt="BPI QR Code" 
+              onerror="this.onerror=null; this.src='https://placehold.co/200x400/FAF8F5/2D2B2A?text=BPI+2x4+QR';" 
+              class="w-full h-full object-contain rounded-xl"
+            />
+          </div>
+          <input type="tel" id="bpiNo" placeholder="Enter Reference / Account No. (For Verification)" class="w-full px-4 py-2.5 bg-voxl-surface border border-voxl-border rounded-xl text-xs text-center focus:outline-none">
+        </div>
+
+        <!-- BDO -->
+        <div id="bdoFields" class="hidden p-4 bg-voxl-bg rounded-2xl border border-voxl-border text-center space-y-3">
+          <p class="text-xs font-bold text-voxl-dark uppercase tracking-wider">Scan to Pay via BDO</p>
+          <div class="w-48 h-[24rem] mx-auto bg-voxl-surface p-2 rounded-2xl border border-voxl-border shadow-xs flex items-center justify-center overflow-hidden">
+            <img 
+              src="paymentqr/bdo-qr.png" 
+              alt="BDO QR Code" 
+              onerror="this.onerror=null; this.src='https://placehold.co/200x400/FAF8F5/2D2B2A?text=BDO+2x4+QR';" 
+              class="w-full h-full object-contain rounded-xl"
+            />
+          </div>
+          <input type="tel" id="bdoNo" placeholder="Enter Reference / Account No. (For Verification)" class="w-full px-4 py-2.5 bg-voxl-surface border border-voxl-border rounded-xl text-xs text-center focus:outline-none">
+        </div>
+
+        <button type="submit" id="submitOrderBtn" class="w-full py-4 bg-voxl-dark text-voxl-bg font-bold rounded-2xl hover:bg-black transition-colors shadow-md text-sm flex items-center justify-center gap-2">
+          <span>Confirm Order</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== CONFIRMATION MODAL ==================== -->
+  <div id="confirmationModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-voxl-dark/40 backdrop-blur-xs">
+    <div class="bg-voxl-surface rounded-3xl shadow-2xl max-w-md w-full p-8 text-center space-y-5 border border-voxl-border">
+      <div class="w-16 h-16 bg-voxl-sage text-voxl-sageText rounded-full flex items-center justify-center mx-auto text-3xl">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold text-voxl-dark">Order Confirmed!</h3>
+        <p class="text-voxl-muted text-xs sm:text-sm mt-1">We are printing your custom order with precision!</p>
+      </div>
+      <div class="bg-voxl-bg p-4 rounded-2xl border border-voxl-border text-left text-xs space-y-2">
+        <div class="flex justify-between">
+          <span class="text-voxl-muted">Ref No:</span>
+          <span id="confOrderRef" class="font-bold text-voxl-dark">#VX-92041</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-voxl-muted">Total Paid:</span>
+          <span id="confAmount" class="font-bold text-voxl-dark">₱0.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-voxl-muted">Method:</span>
+          <span id="confMethod" class="font-semibold text-voxl-dark uppercase">GCash</span>
+        </div>
+      </div>
+      <button onclick="closeConfirmationModal()" class="w-full py-3.5 bg-voxl-dark text-voxl-bg font-bold rounded-2xl hover:bg-black transition-colors text-sm">
+        Back to VOXL Shop
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-voxl-dark text-voxl-bg px-5 py-3.5 rounded-2xl shadow-2xl flex items-center space-x-3 transform translate-y-20 opacity-0 transition-all duration-300">
+    <i class="fa-solid fa-cube text-voxl-accent"></i>
+    <span id="toastMsg" class="text-xs sm:text-sm font-medium">Added to cart!</span>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    // --- COLOR PALETTE DEFINITION ---
+    const COLORS = [
+      { name: "Black", hex: "#1F1F1F" },
+      { name: "Pine Green", hex: "#2D5A27" },
+      { name: "Viva Magenta", hex: "#C71585" },
+      { name: "Orange", hex: "#FF5722" },
+      { name: "Sunshine Yellow", hex: "#FFD54F" },
+      { name: "Mint Green", hex: "#A8E6CF" },
+      { name: "Teal Green", hex: "#008080" },
+      { name: "Light Blue", hex: "#64B5F6" },
+      { name: "Lavender Purple", hex: "#B39DDB" },
+      { name: "Sakura Pink", hex: "#FFB7B2" }
+    ];
+
+    // --- PRODUCT CATALOG ---
+    const PRODUCTS = [
+      {
+        id: "p1",
+        title: "Photobooth Strip Frame Series",
+        category: "Photobooth Strip",
+        price: 198.00,
+        tag: "₱198 / piece",
+        badgeColor: "bg-voxl-sage text-voxl-sageText",
+        description: "Custom 3D printed photo frame designed for standard photobooth strip photos.",
+        shapes: ["Wavy", "Ripple", "Frilly", "Blobby", "Zappy"],
+        defaultShape: "Wavy",
+        defaultColor: "Orange",
+        imageMap: {
+          "Wavy": "photostrip/wavy.png",
+          "Ripple": "photostrip/ripple.png",
+          "Frilly": "photostrip/frilly.png",
+          "Blobby": "photostrip/blobby.png",
+          "Zappy": "photostrip/zappy.png"
+        },
+        colorImageMap: {
+            "Wavy-Black": "photostrip/wavy-black.png",
+            "Wavy-Pine Green": "photostrip/wavy-pine.png",
+            "Wavy-Viva Magenta": "photostrip/wavy-magenta.png",
+            "Wavy-Orange": "photostrip/wavy-orange.png",
+            "Wavy-Sunshine Yellow": "photostrip/wavy-yellow.png",
+            "Wavy-Mint Green": "photostrip/wavy-mint.png",
+            "Wavy-Teal Green": "photostrip/wavy-teal.png",
+            "Wavy-Light Blue": "photostrip/wavy-blue.png",
+            "Wavy-Lavender Purple": "photostrip/wavy-lavender.png",
+            "Wavy-Sakura Pink": "photostrip/wavy-pink.png",
+            
+            "Ripple-Black": "photostrip/ripple-black.png",
+            "Ripple-Pine Green": "photostrip/ripple-pine.png",
+            "Ripple-Viva Magenta": "photostrip/ripple-magenta.png",
+            "Ripple-Orange": "photostrip/ripple-orange.png",
+            "Ripple-Sunshine Yellow": "photostrip/ripple-yellow.png",
+            "Ripple-Mint Green": "photostrip/ripple-mint.png",
+            "Ripple-Teal Green": "photostrip/ripple-teal.png",
+            "Ripple-Light Blue": "photostrip/ripple-blue.png",
+            "Ripple-Lavender Purple": "photostrip/ripple-lavender.png",
+            "Ripple-Sakura Pink": "photostrip/ripple-pink.png",
+            
+            "Frilly-Black": "photostrip/frilly-black.png",
+            "Frilly-Pine Green": "photostrip/frilly-pine.png",
+            "Frilly-Viva Magenta": "photostrip/frilly-magenta.png",
+            "Frilly-Orange": "photostrip/frilly-orange.png",
+            "Frilly-Sunshine Yellow": "photostrip/frilly-yellow.png",
+            "Frilly-Mint Green": "photostrip/frilly-mint.png",
+            "Frilly-Teal Green": "photostrip/frilly-teal.png",
+            "Frilly-Light Blue": "photostrip/frilly-blue.png",
+            "Frilly-Lavender Purple": "photostrip/frilly-lavender.png",
+            "Frilly-Sakura Pink": "photostrip/frilly-pink.png",
+            
+            "Blobby-Black": "photostrip/blobby-black.png",
+            "Blobby-Pine Green": "photostrip/blobby-pine.png",
+            "Blobby-Viva Magenta": "photostrip/blobby-magenta.png",
+            "Blobby-Orange": "photostrip/blobby-orange.png",
+            "Blobby-Sunshine Yellow": "photostrip/blobby-yellow.png",
+            "Blobby-Mint Green": "photostrip/blobby-mint.png",
+            "Blobby-Teal Green": "photostrip/blobby-teal.png",
+            "Blobby-Light Blue": "photostrip/blobby-blue.png",
+            "Blobby-Lavender Purple": "photostrip/blobby-lavender.png",
+            "Blobby-Sakura Pink": "photostrip/blobby-pink.png",
+            
+            "Zappy-Black": "photostrip/zappy-black.png",
+            "Zappy-Pine Green": "photostrip/zappy-pine.png",
+            "Zappy-Viva Magenta": "photostrip/zappy-magenta.png",
+            "Zappy-Orange": "photostrip/zappy-orange.png",
+            "Zappy-Sunshine Yellow": "photostrip/zappy-yellow.png",
+            "Zappy-Mint Green": "photostrip/zappy-mint.png",
+            "Zappy-Teal Green": "photostrip/zappy-teal.png",
+            "Zappy-Light Blue": "photostrip/zappy-blue.png",
+            "Zappy-Lavender Purple": "photostrip/zappy-lavender.png",
+            "Zappy-Sakura Pink": "photostrip/zappy-pink.png"
+        }
+      },
+      {
+        id: "p2",
+        title: "Instax Mini Frame Series",
+        category: "Instax Mini",
+        price: 169.00,
+        tag: "₱169 / piece",
+        badgeColor: "bg-voxl-rose text-voxl-roseText",
+        description: "Fun geometric pop frames tailored perfectly for Fujifilm Instax Mini films.",
+        shapes: ["Twisty Pop", "Starburst", "Bubbly", "Twinkle Toes", "Wiggly Woo", "Butterfly"],
+        defaultShape: "Twisty Pop",
+        defaultColor: "Orange",
+        imageMap: {
+          "Twisty Pop": "instaxmini/twisty-pop.png",
+          "Starburst": "instaxmini/starburst.png",
+          "Bubbly": "instaxmini/bubbly.png",
+          "Twinkle Toes": "instaxmini/twinkle-toes.png",
+          "Wiggly Woo": "instaxmini/wiggly-woo.png",
+          "Butterfly": "instaxmini/butterfly.png"
+        }
+      },
+      {
+        id: "p3",
+        title: "Mochi Stack Ambient Lamp",
+        category: "Lamps",
+        price: 499.00,
+        tag: "Customizable Lighting",
+        badgeColor: "bg-amber-100 text-amber-800",
+        description: "Playful stacked pebble lamp with ribbed diffuser top and weighted custom base.",
+        isLamp: true,
+        image: "mochistack/Mochi Stack no background.png",
+        options: {
+          size: "Small",
+          top: "Silk White",
+          base: "Oak",
+          bulb: "Warm White",
+          power: "off"
+        },
+        colorImageMap: {
+          "Silk White-Oak": "mochistack/mochi-silk white-oak.png",
+          "Silk White-Pine Green": "mochistack/mochi-silk white-pine green.png",
+          "Silk White-Black": "mochistack/mochi-silk white-black.png",
+          "Amber-Oak": "mochistack/mochi-amber-oak.png",
+          "Amber-Pine Green": "mochistack/mochi-amber-pine green.png",
+          "Amber-Black": "mochistack/mochi-amber-black.png",
+
+          "Silk White-Oak-White-on": "mochistack/mochi-silk white-oak-white.png",
+          "Silk White-Pine Green-White-on": "mochistack/mochi-silk white-pine green-white.png",
+          "Silk White-Black-White-on": "mochistack/mochi-silk white-black-white.png",
+
+          "Silk White-Oak-Warm White-on": "mochistack/mochi-silk white-oak-warm white.png",
+          "Silk White-Pine Green-Warm White-on": "mochistack/mochi-silk white-pine green-warm white.png",
+          "Silk White-Black-Warm White-on": "mochistack/mochi-silk white-black-warm white.png"
+        }
+      }
+    ];
+
+    // --- State ---
+    let cart = [];
+    let activeCategory = "All";
+    let searchQuery = "";
+    
+    let productSelections = {
+      "p1": { shape: "Wavy", colorName: "Orange", hex: "#FF5722" },
+      "p2": { shape: "Twisty Pop", colorName: "Orange", hex: "#FF5722" },
+      "p3": { size: "Small", price: 499, top: "Silk White", base: "Oak", bulb: "Warm White", power: "off" }
+    };
+
+    window.onload = function() {
+      renderCategories();
+      applyFilters();
+    };
+
+    function renderCategories() {
+      const categories = ["All", "Photobooth Strip", "Instax Mini", "Lamps"];
+      const container = document.getElementById("categoryContainer");
+      
+      container.innerHTML = categories.map(cat => `
+        <button 
+          onclick="setCategory('${cat}')"
+          class="px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
+            activeCategory === cat 
+              ? 'bg-voxl-dark text-voxl-bg shadow-sm' 
+              : 'bg-voxl-surface text-voxl-dark border border-voxl-border hover:bg-voxl-card'
+          }"
+        >
+          ${cat === 'All' ? 'Shop All' : cat}
+        </button>
+      `).join('');
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderCategories();
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const sortVal = document.getElementById("sortFilter").value;
+
+      let filtered = PRODUCTS.filter(p => {
+        const matchCat = activeCategory === "All" || p.category === activeCategory;
+        const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            p.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCat && matchSearch;
+      });
+
+      if (sortVal === "low-high") {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (sortVal === "high-low") {
+        filtered.sort((a, b) => b.price - a.price);
+      }
+
+      renderProducts(filtered);
+    }
+
+    function renderProducts(productsList) {
+      const grid = document.getElementById("productGrid");
+      const emptyState = document.getElementById("emptyState");
+
+      if (productsList.length === 0) {
+        grid.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      grid.innerHTML = productsList.map(p => {
+        if (p.isLamp) {
+          const opts = productSelections["p3"];
+          const lampImgPath = getProductImagePath("p3");
+          return `
+            <div class="bg-voxl-surface rounded-3xl p-6 border border-voxl-border hover:shadow-lg transition-all flex flex-col justify-between group">
+              <div>
+                <div class="flex justify-between items-start mb-4">
+                  <span class="px-3 py-1 rounded-full text-xs font-bold ${p.badgeColor}">${p.tag}</span>
+                  <button 
+                    onclick="toggleLampPower()"
+                    class="px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      opts.power === 'on' ? 'bg-amber-400 text-amber-950 shadow-sm' : 'bg-voxl-card text-voxl-muted border border-voxl-border'
+                    }"
+                  >
+                    <i class="fa-solid fa-power-off text-[10px]"></i>
+                    <span>${opts.power === 'on' ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
+
+                <div class="h-64 bg-voxl-card rounded-2xl p-4 mb-5 flex items-center justify-center border border-voxl-border relative overflow-hidden cursor-pointer" onclick="openCustomizerModal('p3')" id="preview-box-p3">
+                  <img 
+                    src="${lampImgPath}" 
+                    alt="${p.title}" 
+                    onerror="this.onerror=null; this.src='mochistack/Mochi Stack no background.png';" 
+                    class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+
+                <h3 class="text-lg font-bold text-voxl-dark mb-1">${p.title}</h3>
+                <p class="text-voxl-muted text-xs mb-4 leading-relaxed">${p.description}</p>
+              </div>
+
+              <div class="flex items-center justify-between gap-3 pt-4 border-t border-voxl-border">
+                <span class="text-lg font-bold text-voxl-dark">₱${opts.price.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                <div class="flex gap-2">
+                  <button onclick="openCustomizerModal('p3')" class="px-5 py-2.5 bg-voxl-dark hover:bg-black text-voxl-bg rounded-xl text-xs font-semibold transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-xs"></i>
+                    <span>Customize</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        const sel = productSelections[p.id];
+        const previewImg = getProductImagePath(p.id);
+        const fallbackImg = (p.imageMap && p.imageMap[sel.shape]) ? p.imageMap[sel.shape] : "photostrip/wavy.png";
+
+        return `
+          <div class="bg-voxl-surface rounded-3xl p-6 border border-voxl-border hover:shadow-lg transition-all flex flex-col justify-between group">
+            <div>
+              <div class="flex justify-between items-start mb-4">
+                <span class="px-3 py-1 rounded-full text-xs font-bold ${p.badgeColor}">${p.tag}</span>
+              </div>
+
+              <div class="h-64 bg-voxl-card rounded-2xl p-4 mb-5 flex items-center justify-center border border-voxl-border relative overflow-hidden cursor-pointer" onclick="openCustomizerModal('${p.id}')" id="preview-box-${p.id}">
+                <img 
+                  src="${previewImg}" 
+                  alt="${p.title}" 
+                  onerror="this.onerror=null; this.src='${fallbackImg}';" 
+                  class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+
+              <h3 class="text-lg font-bold text-voxl-dark mb-1">${p.title}</h3>
+              <p class="text-voxl-muted text-xs mb-4 leading-relaxed">${p.description}</p>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 pt-4 border-t border-voxl-border">
+              <span class="text-lg font-bold text-voxl-dark">₱${p.price.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+              <div class="flex gap-2">
+                <button onclick="openCustomizerModal('${p.id}')" class="px-5 py-2.5 bg-voxl-dark hover:bg-black text-voxl-bg rounded-xl text-xs font-semibold transition-colors flex items-center gap-2">
+                  <i class="fa-solid fa-sliders text-xs"></i>
+                  <span>Customize</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById("searchInput").value;
+      applyFilters();
+    }
+
+    function resetFilters() {
+      activeCategory = "All";
+      searchQuery = "";
+      document.getElementById("searchInput").value = "";
+      renderCategories();
+      applyFilters();
+    }
+
+    function getProductImagePath(productId) {
+      const p = PRODUCTS.find(item => item.id === productId);
+      if (!p) return "";
+      
+      if (p.isLamp) {
+        const lampOpts = productSelections["p3"];
+        
+        if (lampOpts.power === "on") {
+          const onKey = `${lampOpts.top}-${lampOpts.base}-${lampOpts.bulb}-on`;
+          if (p.colorImageMap && p.colorImageMap[onKey]) {
+            return p.colorImageMap[onKey];
+          }
+        }
+
+        const lampCombo = `${lampOpts.top}-${lampOpts.base}`;
+        if (p.colorImageMap && p.colorImageMap[lampCombo]) {
+          return p.colorImageMap[lampCombo];
+        }
+        return p.image;
+      }
+      
+      const sel = productSelections[productId];
+      const comboKey = `${sel.shape}-${sel.colorName}`;
+      
+      if (p.colorImageMap && p.colorImageMap[comboKey]) {
+        return p.colorImageMap[comboKey];
+      }
+
+      if (p.imageMap && p.imageMap[sel.shape]) {
+        return p.imageMap[sel.shape];
+      }
+
+      const folderPrefix = p.category === "Instax Mini" ? "instaxmini/" : "photostrip/";
+      const shapeSlug = sel.shape.toLowerCase().replace(/\s+/g, '-');
+      const colorSlug = sel.colorName.toLowerCase().replace(/\s+/g, '-');
+      return `${folderPrefix}${shapeSlug}-${colorSlug}.png`;
+    }
+
+    function setProductShape(productId, shapeName) {
+      productSelections[productId].shape = shapeName;
+      
+      const p = PRODUCTS.find(item => item.id === productId);
+      if (p) {
+        const previewContainer = document.getElementById(`preview-box-${productId}`);
+        if (previewContainer) {
+          const imgPath = getProductImagePath(productId);
+          const fallbackPath = (p.imageMap && p.imageMap[shapeName]) ? p.imageMap[shapeName] : "photostrip/wavy.png";
+          previewContainer.innerHTML = `
+            <img 
+              src="${imgPath}" 
+              alt="${p.title}" 
+              onerror="this.onerror=null; this.src='${fallbackPath}';" 
+              class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          `;
+        }
+      }
+      applyFilters();
+    }
+
+    function setProductColor(productId, colorName, colorHex) {
+      productSelections[productId].colorName = colorName;
+      productSelections[productId].hex = colorHex;
+      
+      const p = PRODUCTS.find(item => item.id === productId);
+      if (p) {
+        const previewContainer = document.getElementById(`preview-box-${productId}`);
+        if (previewContainer) {
+          const imgPath = getProductImagePath(productId);
+          const selection = productSelections[productId];
+          const fallbackPath = (p.imageMap && p.imageMap[selection.shape]) ? p.imageMap[selection.shape] : "photostrip/wavy.png";
+          previewContainer.innerHTML = `
+            <img 
+              src="${imgPath}" 
+              alt="${p.title}" 
+              onerror="this.onerror=null; this.src='${fallbackPath}';" 
+              class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          `;
+        }
+      }
+      applyFilters();
+    }
+
+    function setLampCardOption(key, val) {
+      productSelections["p3"][key] = val;
+      const lampImgPath = getProductImagePath("p3");
+      const previewContainer = document.getElementById("preview-box-p3");
+      if (previewContainer) {
+        previewContainer.innerHTML = `
+          <img 
+            src="${lampImgPath}" 
+            alt="Mochi Stack Ambient Lamp" 
+            onerror="this.onerror=null; this.src='mochistack/Mochi Stack no background.png';" 
+            class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+          />
+        `;
+      }
+      applyFilters();
+    }
+
+    function toggleLampPower() {
+      productSelections["p3"].power = productSelections["p3"].power === "on" ? "off" : "on";
+      setLampCardOption("power", productSelections["p3"].power);
+    }
+
+    function openCustomizerModal(productId) {
+      const p = PRODUCTS.find(item => item.id === productId);
+      const container = document.getElementById("customizerModalContent");
+
+      if (p.isLamp) {
+        const opts = productSelections["p3"];
+        const lampImgPath = getProductImagePath("p3");
+        container.innerHTML = `
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xl font-bold text-voxl-dark">Customize Mochi Stack Lamp</h3>
+              <button 
+                onclick="toggleLampPower(); openCustomizerModal('p3');"
+                class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  opts.power === 'on' ? 'bg-amber-400 text-amber-950 shadow-sm' : 'bg-voxl-bg text-voxl-muted border border-voxl-border'
+                }"
+              >
+                <i class="fa-solid fa-power-off"></i>
+                <span>${opts.power === 'on' ? 'Lamp: ON' : 'Lamp: OFF'}</span>
+              </button>
+            </div>
+            
+            <div class="bg-voxl-card rounded-2xl p-6 border border-voxl-border flex items-center justify-center h-64" id="modal-lamp-preview">
+              <img 
+                src="${lampImgPath}" 
+                alt="Mochi Lamp" 
+                onerror="this.onerror=null; this.src='${p.image}';" 
+                class="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            <div class="space-y-4 text-xs">
+              <div>
+                <label class="font-bold text-voxl-dark block mb-2">1. Select Size</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button onclick="setLampOption('size', 'Small')" class="p-3 rounded-xl border text-center font-bold ${opts.size === 'Small' ? 'bg-voxl-dark text-voxl-bg border-voxl-dark' : 'bg-voxl-surface text-voxl-dark border-voxl-border'}">
+                    Small (₱499)
+                  </button>
+                  <button onclick="setLampOption('size', 'Big')" class="p-3 rounded-xl border text-center font-bold ${opts.size === 'Big' ? 'bg-voxl-dark text-voxl-bg border-voxl-dark' : 'bg-voxl-surface border-voxl-border'}">
+                    Big (₱1,299)
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="font-bold text-voxl-dark block mb-2">2. Diffuser Top Shade</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button onclick="setLampOption('top', 'Silk White')" class="p-3 rounded-xl border font-bold ${opts.top === 'Silk White' ? 'bg-voxl-dark text-voxl-bg border-voxl-dark' : 'bg-voxl-surface border-voxl-border'}">
+                    Silk White
+                  </button>
+                  <button onclick="setLampOption('top', 'Amber')" class="p-3 rounded-xl border font-bold ${opts.top === 'Amber' ? 'bg-voxl-dark text-voxl-bg border-voxl-dark' : 'bg-voxl-surface border-voxl-border'}">
+                    Amber
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="font-bold text-voxl-dark block mb-2">3. Weighted Base Color</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="setLampOption('base', 'Oak')" class="p-2.5 rounded-xl border font-bold ${opts.base === 'Oak' ? 'bg-voxl-dark text-voxl-bg' : 'bg-voxl-surface border-voxl-border'}">
+                    Oak
+                  </button>
+                  <button onclick="setLampOption('base', 'Pine Green')" class="p-2.5 rounded-xl border font-bold ${opts.base === 'Pine Green' ? 'bg-voxl-dark text-voxl-bg' : 'bg-voxl-surface border-voxl-border'}">
+                    Pine Green
+                  </button>
+                  <button onclick="setLampOption('base', 'Black')" class="p-2.5 rounded-xl border font-bold ${opts.base === 'Black' ? 'bg-voxl-dark text-voxl-bg' : 'bg-voxl-surface border-voxl-border'}">
+                    Black
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="font-bold text-voxl-dark block mb-2">4. LED Light Color Choice</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button onclick="setLampOption('bulb', 'Warm White')" class="p-3 rounded-xl border font-bold ${opts.bulb === 'Warm White' ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-voxl-surface border-voxl-border'}">
+                    <i class="fa-solid fa-sun text-amber-500 mr-1"></i> Warm White
+                  </button>
+                  <button onclick="setLampOption('bulb', 'White')" class="p-3 rounded-xl border font-bold ${opts.bulb === 'White' ? 'bg-sky-100 text-sky-900 border-sky-300' : 'bg-voxl-surface border-voxl-border'}">
+                    <i class="fa-solid fa-lightbulb text-sky-500 mr-1"></i> White Light
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="addToCart('p3'); closeCustomizerModal();" class="w-full py-4 bg-voxl-dark text-voxl-bg font-bold rounded-2xl hover:bg-black transition-colors text-xs">
+              Confirm & Add to Bag (₱${opts.price.toLocaleString('en-PH', {minimumFractionDigits: 2})})
+            </button>
+          </div>
+        `;
+      } else {
+        const selection = productSelections[p.id];
+        const modalImgPath = getProductImagePath(p.id);
+        const fallbackPath = (p.imageMap && p.imageMap[selection.shape]) ? p.imageMap[selection.shape] : "photostrip/wavy.png";
+        container.innerHTML = `
+          <div class="space-y-6">
+            <h3 class="text-xl font-bold text-voxl-dark">Customize ${p.title}</h3>
+            
+            <div class="bg-voxl-card rounded-2xl p-6 flex justify-center border border-voxl-border h-64 items-center">
+              <img 
+                src="${modalImgPath}" 
+                alt="${p.title}" 
+                onerror="this.onerror=null; this.src='${fallbackPath}';" 
+                class="max-h-full max-w-full object-contain drop-shadow-md"
+              />
+            </div>
+
+            <div class="space-y-4 text-xs">
+              <div>
+                <label class="font-bold text-voxl-dark block mb-2">Select Frame Shape</label>
+                <div class="flex flex-wrap gap-2">
+                  ${p.shapes.map(s => `
+                    <button 
+                      onclick="setProductShape('${p.id}', '${s}'); openCustomizerModal('${p.id}');"
+                      class="px-3 py-2 rounded-xl text-xs font-bold border ${selection.shape === s ? 'bg-voxl-dark text-voxl-bg border-voxl-dark' : 'bg-voxl-surface text-voxl-dark border-voxl-border'}"
+                    >
+                      ${s}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div>
+                <label class="font-bold text-voxl-dark block mb-2">Choose Filament Color (${selection.colorName})</label>
+                <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                  ${COLORS.map(c => `
+                    <button 
+                      onclick="setProductColor('${p.id}', '${c.name}', '${c.hex}'); openCustomizerModal('${p.id}');"
+                      title="${c.name}"
+                      class="w-8 h-8 rounded-full border border-black/20 flex items-center justify-center transition-all ${selection.colorName === c.name ? 'ring-2 ring-voxl-dark ring-offset-2 scale-110' : ''}"
+                      style="background-color: ${c.hex};"
+                    ></button>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+            <button onclick="addToCart('${p.id}'); closeCustomizerModal();" class="w-full py-4 bg-voxl-dark text-voxl-bg font-bold rounded-2xl hover:bg-black transition-colors text-xs">
+              Add Custom ${selection.shape} Frame to Bag - ₱${p.price.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+            </button>
+          </div>
+        `;
+      }
+
+      document.getElementById("customizerModal").classList.remove("hidden");
+      document.getElementById("customizerModal").classList.add("flex");
+    }
+
+    function setLampOption(key, val) {
+      const opts = productSelections["p3"];
+      opts[key] = val;
+      if (key === 'size') {
+        opts.price = val === 'Big' ? 1299.00 : 499.00;
+      }
+      openCustomizerModal('p3');
+      applyFilters();
+    }
+
+    function closeCustomizerModal() {
+      document.getElementById("customizerModal").classList.add("hidden");
+      document.getElementById("customizerModal").classList.remove("flex");
+    }
+
+    // --- CART LOGIC ---
+    function addToCart(productId) {
+      const product = PRODUCTS.find(p => p.id === productId);
+      
+      let cartItem = {};
+
+      if (product.isLamp) {
+        const opts = productSelections["p3"];
+        const variantKey = `lamp-${opts.size}-${opts.top}-${opts.base}-${opts.bulb}`;
+        
+        cartItem = {
+          cartId: variantKey,
+          productId: productId,
+          title: "Mochi Stack Lamp",
+          subtitle: `${opts.size} | Top: ${opts.top} | Base: ${opts.base} | Bulb: ${opts.bulb}`,
+          price: opts.price,
+          quantity: 1,
+          isLamp: true,
+          top: opts.top,
+          base: opts.base,
+          bulb: opts.bulb
+        };
+      } else {
+        const sel = productSelections[productId];
+        const variantKey = `${productId}-${sel.shape}-${sel.colorName}`;
+
+        cartItem = {
+          cartId: variantKey,
+          productId: productId,
+          title: product.title,
+          subtitle: `Shape: ${sel.shape} | Color: ${sel.colorName}`,
+          price: product.price,
+          quantity: 1,
+          shape: sel.shape,
+          colorName: sel.colorName,
+          hex: sel.hex
+        };
+      }
+
+      const existing = cart.find(item => item.cartId === cartItem.cartId);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push(cartItem);
+      }
+
+      updateCartUI();
+      showToast(`Added to bag!`);
+    }
+
+    function updateQuantity(cartId, delta) {
+      const item = cart.find(i => i.cartId === cartId);
+      if (!item) return;
+
+      item.quantity += delta;
+      if (item.quantity <= 0) {
+        cart = cart.filter(i => i.cartId !== cartId);
+      }
+      updateCartUI();
+    }
+
+    function removeFromCart(cartId) {
+      cart = cart.filter(i => i.cartId !== cartId);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const badge = document.getElementById("cartBadge");
+      badge.innerText = totalCount;
+      if (totalCount > 0) {
+        badge.classList.remove("scale-0");
+        badge.classList.add("scale-100");
+      } else {
+        badge.classList.remove("scale-100");
+        badge.classList.add("scale-0");
+      }
+
+      const container = document.getElementById("cartItemsContainer");
+      const checkoutBtn = document.getElementById("checkoutBtn");
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center p-6 text-voxl-muted">
+            <i class="fa-solid fa-cube text-4xl mb-3 opacity-30"></i>
+            <p class="text-sm font-semibold text-voxl-dark">Your bag is empty</p>
+            <p class="text-xs mt-1">Pick your custom frames or 3D lamp design.</p>
+          </div>
+        `;
+        checkoutBtn.disabled = true;
+      } else {
+        checkoutBtn.disabled = false;
+        container.innerHTML = cart.map(item => {
+          let cartImgSrc = "photostrip/wavy.png";
+
+          if (item.isLamp) {
+            const lampProduct = PRODUCTS.find(p => p.id === item.productId);
+            const lampCombo = `${item.top}-${item.base}`;
+            if (lampProduct && lampProduct.colorImageMap && lampProduct.colorImageMap[lampCombo]) {
+              cartImgSrc = lampProduct.colorImageMap[lampCombo];
+            } else {
+              cartImgSrc = "mochistack/Mochi Stack no background.png";
+            }
+          } else if (item.productId) {
+            const product = PRODUCTS.find(p => p.id === item.productId);
+            if (product) {
+              const comboKey = `${item.shape}-${item.colorName}`;
+              if (product.colorImageMap && product.colorImageMap[comboKey]) {
+                cartImgSrc = product.colorImageMap[comboKey];
+              } else if (product.imageMap && product.imageMap[item.shape]) {
+                cartImgSrc = product.imageMap[item.shape];
+              } else {
+                const folderPrefix = product.category === "Instax Mini" ? "instaxmini/" : "photostrip/";
+                const shapeSlug = item.shape.toLowerCase().replace(/\s+/g, '-');
+                const colorSlug = item.colorName ? item.colorName.toLowerCase().replace(/\s+/g, '-') : '';
+                cartImgSrc = colorSlug ? `${folderPrefix}${shapeSlug}-${colorSlug}.png` : `${folderPrefix}${shapeSlug}.png`;
+              }
+            }
+          }
+
+          return `
+          <div class="flex items-center space-x-4 p-4 bg-voxl-bg rounded-2xl border border-voxl-border">
+            <div class="w-28 h-28 bg-voxl-surface rounded-xl p-1 border border-voxl-border flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
+              <img 
+                src="${cartImgSrc}" 
+                alt="${item.title}" 
+                onerror="this.onerror=null; this.src='photostrip/wavy.png';" 
+                class="w-full h-full object-contain scale-110"
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs font-bold text-voxl-dark truncate">${item.title}</h4>
+              <p class="text-[10px] text-voxl-muted truncate mt-0.5">${item.subtitle}</p>
+              <p class="text-xs font-bold text-voxl-dark mt-1">₱${(item.price * item.quantity).toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+              
+              <div class="flex items-center space-x-2 mt-2">
+                <button onclick="updateQuantity('${item.cartId}', -1)" class="w-6 h-6 rounded-lg bg-voxl-surface border border-voxl-border text-voxl-dark text-[10px] flex items-center justify-center hover:bg-voxl-card transition-colors">
+                  <i class="fa-solid fa-minus text-[9px]"></i>
+                </button>
+                <span class="text-xs font-bold text-voxl-dark w-4 text-center">${item.quantity}</span>
+                <button onclick="updateQuantity('${item.cartId}', 1)" class="w-6 h-6 rounded-lg bg-voxl-surface border border-voxl-border text-voxl-dark text-[10px] flex items-center justify-center hover:bg-voxl-card transition-colors">
+                  <i class="fa-solid fa-plus text-[9px]"></i>
+                </button>
+              </div>
+            </div>
+            <button onclick="removeFromCart('${item.cartId}')" class="p-2 text-voxl-muted hover:text-rose-600 transition-colors">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        `}).join('');
+      }
+
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const shipping = subtotal > 0 ? 120.00 : 0;
+      const total = subtotal + shipping;
+
+      document.getElementById("cartSubtotal").innerText = `₱${subtotal.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+      document.getElementById("cartShipping").innerText = shipping === 0 ? "₱0.00" : `₱${shipping.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+      document.getElementById("cartTotal").innerText = `₱${total.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+    }
+
+    function toggleCart(open) {
+      const modal = document.getElementById("cartModal");
+      const overlay = document.getElementById("cartOverlay");
+      const content = document.getElementById("cartContent");
+
+      if (open) {
+        modal.classList.remove("pointer-events-none");
+        overlay.classList.remove("opacity-0", "pointer-events-none");
+        overlay.classList.add("opacity-100");
+        content.classList.remove("translate-x-full");
+      } else {
+        overlay.classList.remove("opacity-100");
+        overlay.classList.add("opacity-0", "pointer-events-none");
+        content.classList.add("translate-x-full");
+        setTimeout(() => modal.classList.add("pointer-events-none"), 300);
+      }
+    }
+
+    // --- CHECKOUT HANDLERS ---
+    function openCheckoutModal() {
+      if (cart.length === 0) return;
+      toggleCart(false);
+
+      const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0);
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const grandTotal = subtotal + 120.00;
+
+      document.getElementById("checkoutItemCount").innerText = `${totalItems} item(s) in order`;
+      document.getElementById("checkoutGrandTotal").innerText = `₱${grandTotal.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+      
+      document.getElementById("checkoutModal").classList.remove("hidden");
+      document.getElementById("checkoutModal").classList.add("flex");
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById("checkoutModal").classList.add("hidden");
+      document.getElementById("checkoutModal").classList.remove("flex");
+    }
+
+    function togglePaymentFields(type) {
+      document.getElementById("gcashFields").classList.toggle("hidden", type !== "gcash");
+      document.getElementById("mayaFields").classList.toggle("hidden", type !== "maya");
+      document.getElementById("maribankFields").classList.toggle("hidden", type !== "maribank");
+      document.getElementById("bpiFields").classList.toggle("hidden", type !== "bpi");
+      document.getElementById("bdoFields").classList.toggle("hidden", type !== "bdo");
+    }
+
+    const GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwq0gU5WuRKcCGGILJbjh7_F5XVbAzL68tKdXoM5jwhIETR2-Le7y5dwhvAj0Uyj45U/exec";
+
+    function handlePaymentSubmit(e) {
+      e.preventDefault();
+      
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const grandTotal = subtotal + 120.00;
+      const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+      const orderRef = `#VX-${Math.floor(10000 + Math.random() * 90000)}`;
+
+      // Create an array where each item is a distinct string for individual spreadsheet columns
+      const itemsListArray = cart.map(item => `${item.title} (${item.subtitle}) x${item.quantity}`);
+
+      const orderData = {
+        orderRef: orderRef,
+        timestamp: new Date().toLocaleString("en-PH", { timeZone: "Asia/Manila" }),
+        fullName: document.getElementById("custName").value,
+        mobile: document.getElementById("custMobile").value,
+        email: document.getElementById("custEmail").value,
+        address: document.getElementById("custAddress").value,
+        paymentMethod: selectedMethod.toUpperCase(),
+        totalAmount: `₱${grandTotal.toLocaleString('en-PH', {minimumFractionDigits: 2})}`,
+        itemsList: itemsListArray,
+        items: itemsListArray.join(" | ")
+      };
+
+      document.getElementById("confOrderRef").innerText = orderRef;
+      document.getElementById("confAmount").innerText = `₱${grandTotal.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+      document.getElementById("confMethod").innerText = selectedMethod;
+
+      closeCheckoutModal();
+      
+      const confModal = document.getElementById("confirmationModal");
+      confModal.classList.remove("hidden");
+      confModal.classList.add("flex");
+
+      if (GOOGLE_SHEETS_WEBHOOK_URL) {
+        fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData)
+        }).catch(err => console.error("Error sending to Google Sheet:", err));
+      }
+
+      cart = [];
+      updateCartUI();
+      document.getElementById("checkoutForm").reset();
+    }
+
+    function closeConfirmationModal() {
+      document.getElementById("confirmationModal").classList.add("hidden");
+      document.getElementById("confirmationModal").classList.remove("flex");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toastMsg").innerText = msg;
+      
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
